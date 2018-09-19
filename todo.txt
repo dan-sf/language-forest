@@ -1,0 +1,18 @@
+# Languages I'd like to add to the language-forest
+
+Rust
+D
+Go
+Zig
+Pony
+Nim
+Haskell
+F#
+Asm
+Lisp
+Scheme
+Clojure
+Jai (when released)
+TypeScript
+Fourth
+
