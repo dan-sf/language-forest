@@ -1,0 +1,29 @@
+
+# Basic outline for subject areas to cover for each language
+
+Basic data types and operators
+Variables (use/types)
+Collections (lists/arrays/hash maps/sets/...)
+Controll flow (loops/if else/...)
+Functions (definition/calling/passing/...)
+Classes/Structs (generated types)
+Standard libs (examples)
+Modules/Libs (management/usage)
+Misc language specific features
+
+# Basic project ideas to explore languages with
+
+Dice roll simulator
+Guess the number game
+Tic tac toe
+Hangman
+Draw a box or triangle on the screen
+Simple web server
+Interact with a public data api (wikipedia)
+Project Euler/leet code/top coder problems
+Do some IO data processing (use open data)
+Calculate PI
+Basic calculators (ex. formulas)
+
+Further project ideas: http://rosettacode.org/wiki/Category:Programming_Tasks
+
