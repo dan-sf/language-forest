@@ -61,10 +61,59 @@ fn main() {
     };
 
     println!("There are also ternary statements in rust: {}", if number == 12 { 3 } else { 4 });
-}
 
+    // Rust loops!
+    println!();
+
+    let mut count = 0;
+    let loop_result = loop {
+        count += 1;
+        if count == 5 {
+            break 11
+        }
+    };
+
+    println!("We can return values from loops: {}", loop_result);
+
+    count = 0;
+    while count < 2 {
+        println!("While we are here: {}", count);
+        count += 1;
+    }
+
+    for i in 0..2 {
+        println!("For the win: {}", i);
+    }
+
+    println!();
+    println!("Let's use a for loop to print the elements in an array");
+    let arr = ["How", "now", "brown", "cow?"];
+        print!("\t");
+    for element in arr.iter() {
+        print!("{} ", element);
+    }
+    println!("\n");
+
+    // Memory management
+
+    let mut st = String::from("Hello");
+    st.push_str(", my friend");
+    // Pass ownership of 'st' String to the 'modify_heap_string_append_char' function, then pass it back to 'st'
+    st = modify_heap_string_append_char(st, '!');
+    st.push_str(" Greatings from the heap.");
+    println!("{}", st);
+
+}
 
 fn add_two_numbers(a: i32, b: i32) -> i32 {
     return a + b;
+}
+
+fn modify_heap_string_append_char(mut string: String, ch: char) -> String {
+    // Here we can't just modify the string, we must return it since this function owns the string
+    // that is passed in. So to prevent the memory from going away we return the string allowing
+    // the caller to then own the string.
+    string.push(ch);
+    return string;
 }
 
