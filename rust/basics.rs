@@ -103,6 +103,30 @@ fn main() {
     st.push_str(" Greatings from the heap.");
     println!("{}", st);
 
+    // Here we clone a string making a full copy of the heap data, rust doesn't allow multiple vars
+    // to point to the same data
+    let s1 = String::from("One");
+    let s2 = s1.clone();
+    println!("This is s1: {}, and this is s2: {}, which is a clone of s1", s1, s2);
+
+    // Since x is a primative type on the stack we can pass it to a function and still use it
+    // afterwards. This would result in an error if x was a String.
+    let x = 10;
+    add_two_numbers(x, x);
+    println!("This is x (we can still see it even though it was passed to a function): {}", x);
+
+    // Here we create a string on the heap and pass a reference of it to a function to modify the
+    // string in this scope, we can then use that string again after its reference was passed to
+    // the function
+    println!();
+    let mut modify_me = String::from("One");
+    println!("This is our unmodified string: {}", modify_me);
+    modify_heap_string_add_str_using_ref(&mut modify_me, " time too many.".to_string());
+    println!("This is our modified string: {}", modify_me);
+
+    let slice_string = "Testing 123";
+    println!("This is a sliced string: {},{}", &slice_string[0..7], &slice_string[7..]);
+    println!("Same sliced string using ..=: {},{}", &slice_string[..=6], &slice_string[7..]);
 }
 
 fn add_two_numbers(a: i32, b: i32) -> i32 {
@@ -115,5 +139,10 @@ fn modify_heap_string_append_char(mut string: String, ch: char) -> String {
     // the caller to then own the string.
     string.push(ch);
     return string;
+}
+
+fn modify_heap_string_add_str_using_ref(string: &mut String, added: String) {
+    // This function doesn't return anything, it just modifies a reference to a string
+    string.push_str(&added);
 }
 
