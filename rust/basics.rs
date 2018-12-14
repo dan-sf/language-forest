@@ -127,6 +127,28 @@ fn main() {
     let slice_string = "Testing 123";
     println!("This is a sliced string: {},{}", &slice_string[0..7], &slice_string[7..]);
     println!("Same sliced string using ..=: {},{}", &slice_string[..=6], &slice_string[7..]);
+
+    // Lets work with some structs
+
+    println!("");
+
+    struct Car {
+        make: String,
+        model: String,
+        year: u32,
+    }
+
+    let a_car = Car {
+        make: String::from("Ford"),
+        model: String::from("Taurus"),
+        year: 2010,
+    };
+
+    println!("Look at this {} {} {}! We can store it in a struct.", a_car.year, a_car.make, a_car.model);
+
+    struct Vector3(i32, i32, i32);
+    let v3 = Vector3(1, 2, 3);
+    println!("Here we have a v3 as a tuple struct: ({}, {}, {})", v3.0, v3.1, v3.2);
 }
 
 fn add_two_numbers(a: i32, b: i32) -> i32 {
