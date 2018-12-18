@@ -149,6 +149,45 @@ fn main() {
     struct Vector3(i32, i32, i32);
     let v3 = Vector3(1, 2, 3);
     println!("Here we have a v3 as a tuple struct: ({}, {}, {})", v3.0, v3.1, v3.2);
+
+    // We can use the derive annotation to help us debug print this struct
+    #[derive(Debug)]
+    struct Point {
+        x: f32,
+        y: f32,
+        z: f32,
+    };
+
+    let p = Point { x: 1.0, y: 2.0, z: 3.0 };
+    println!("Lets print out a struct that uses '#[derive(Debug)]' for debug printing: {:#?}\n", p);
+
+    // We can also add methods to our structs
+
+    struct Cup {
+        volume: f32,
+        is_full: bool,
+        liquid_type: String,
+        liquid_amount: f32,
+    }
+
+    impl Cup {
+        fn fill(&mut self) {
+            self.liquid_amount = self.volume;
+            self.is_full = true;
+        }
+
+        fn print(&self) {
+            println!("volume: {}, is_full: {}, liquid_type: {}, liquid_amount: {}",
+                     self.volume, self.is_full, self.liquid_type, self.liquid_amount);
+        }
+    }
+
+    let mut cup = Cup { volume: 5.0, is_full: false, liquid_type: String::from("water"), liquid_amount: 2.0 };
+    print!("Here is the cup I have: "); cup.print();
+    cup.fill();
+    print!("Here is the cup filled: "); cup.print();
+
+    // Next: Enums and Pattern Matching...
 }
 
 fn add_two_numbers(a: i32, b: i32) -> i32 {
