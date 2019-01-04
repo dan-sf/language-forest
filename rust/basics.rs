@@ -187,7 +187,49 @@ fn main() {
     cup.fill();
     print!("Here is the cup filled: "); cup.print();
 
-    // Next: Enums and Pattern Matching...
+    // Enums and Pattern Matching
+
+    enum Suite {
+        Hearts,
+        Clubs,
+        Diamonds,
+        Spades,
+    }
+
+    let _s: Suite = Suite::Spades;
+    let _c: Suite = Suite::Clubs;
+    let _d: Suite = Suite::Diamonds;
+    let _h: Suite = Suite::Hearts;
+
+    // We can create enums of different data types
+    enum DifferentTypes {
+        Po(Point),
+        St(String),
+        Su(Suite),
+    }
+
+    // That enum of different types can be passed to functions
+    fn take_different_types(diff: &DifferentTypes) {
+        // @Todo: Match on diff and produce some output
+        println!("Test");
+    }
+
+    let dt_string = DifferentTypes::St(String::from("Testing"));
+    let dt_suite = DifferentTypes::Su(_s);
+    let dt_point = DifferentTypes::Po(p);
+    take_different_types(&dt_string);
+    take_different_types(&dt_suite);
+    take_different_types(&dt_point);
+
+    // Option is just an Enum in the stdlib, ( enum Option<T> { Some(T), None, } )
+    // Option/Some/None are all automatically included in scope so we don't need to use
+    // std::option::Option::Some
+
+    let actual_number = 10;
+    let some_number = Some(15);
+    let some_number_full_stdlib = std::option::Option::Some(3);
+    println!("To use values that are options we must unwrap them or handle both Some and None cases: {}",
+             actual_number + some_number.unwrap() + some_number_full_stdlib.unwrap());
 }
 
 fn add_two_numbers(a: i32, b: i32) -> i32 {
