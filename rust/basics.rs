@@ -159,9 +159,30 @@ fn main() {
     };
 
     let p = Point { x: 1.0, y: 2.0, z: 3.0 };
-    println!("Lets print out a struct that uses '#[derive(Debug)]' for debug printing: {:#?}\n", p);
+    println!("Lets print the Point struct that uses '#[derive(Debug)]' for debug printing: {:#?}\n", p);
 
     // We can also add methods to our structs
+
+    #[derive(Debug)]
+    struct Vector4(i32, i32, i32, i32);
+
+    impl Vector4 {
+        fn square_sum(&self) -> i32 {
+            self.0 * self.0 + self.1 * self.1 + self.2 * self.2 + self.3 * self.3
+        }
+
+        fn get_equi_v4(val: i32) -> Vector4 {
+            Vector4(val, val, val, val)
+        }
+    }
+
+    let v4 = Vector4(4,3,2,1);
+
+    println!("Let's debug print the struct: {:?}", v4);
+    println!("Let's debug print the struct in a pretty format: {:#?}", v4);
+    println!("We also have a method that can be called on v4: {}", v4.square_sum());
+    println!("Let's call an associated function on Vector4 struct: {:?}", Vector4::get_equi_v4(10));
+    println!();
 
     struct Cup {
         volume: f32,
@@ -189,29 +210,41 @@ fn main() {
 
     // Enums and Pattern Matching
 
-    enum Suite {
+    enum Suit {
         Hearts,
         Clubs,
         Diamonds,
         Spades,
     }
 
-    let _s: Suite = Suite::Spades;
-    let _c: Suite = Suite::Clubs;
-    let _d: Suite = Suite::Diamonds;
-    let _h: Suite = Suite::Hearts;
+    let _s: Suit = Suit::Spades;
+    let _c: Suit = Suit::Clubs;
+    let _d: Suit = Suit::Diamonds;
+    let _h: Suit = Suit::Hearts;
 
     // We can create enums of different data types
     enum DifferentTypes {
         Po(Point),
         St(String),
-        Su(Suite),
+        Su(Suit),
     }
 
     // That enum of different types can be passed to functions
     fn take_different_types(diff: &DifferentTypes) {
-        // @Todo: Match on diff and produce some output
-        println!("Test");
+        match diff {
+            // When matching on enums that have values, we can pull those values out and operate on
+            // them. Even run another match on that value
+            DifferentTypes::Po(po) => { println!("We got a point: {:?}.", po); },
+            DifferentTypes::St(st) => { println!("We got a string: {}.", st); },
+            DifferentTypes::Su(su) => {
+                match su {
+                    Suit::Hearts => { println!("We got a suit: Hearts."); },
+                    Suit::Clubs => { println!("We got a suit: Clubs."); },
+                    Suit::Diamonds => { println!("We got a suit: Diamonds."); },
+                    Suit::Spades => { println!("We got a suit: Spades."); },
+                }
+            },
+        };
     }
 
     let dt_string = DifferentTypes::St(String::from("Testing"));
@@ -220,6 +253,7 @@ fn main() {
     take_different_types(&dt_string);
     take_different_types(&dt_suite);
     take_different_types(&dt_point);
+    println!();
 
     // Option is just an Enum in the stdlib, ( enum Option<T> { Some(T), None, } )
     // Option/Some/None are all automatically included in scope so we don't need to use
@@ -227,9 +261,63 @@ fn main() {
 
     let actual_number = 10;
     let some_number = Some(15);
+    let none_number = None;
     let some_number_full_stdlib = std::option::Option::Some(3);
     println!("To use values that are options we must unwrap them or handle both Some and None cases: {}",
              actual_number + some_number.unwrap() + some_number_full_stdlib.unwrap());
+
+    // We can match on optional types just like any other type
+    fn square_optional(val: Option<i32>) -> Option<i32> {
+        match val {
+            Some(i) => Some(i * i),
+            None => None,
+        }
+    }
+
+    // We can return anything we want from matching on an optional
+    fn square_optional_return_int(val: Option<i32>) -> i32 {
+        match val {
+            Some(i) => i * i,
+            None => -1,
+        }
+    }
+
+    println!("Here we square an option (Some) with patern matching: {:?}", square_optional(some_number).unwrap_or(-1));
+    println!("Here we square an option (None) with patern matching: {:?}", square_optional(none_number).unwrap_or(-1));
+    println!();
+    println!("Here we square an option (Some) with patern matching: {}", square_optional_return_int(some_number));
+    println!("Here we square an option (None) with patern matching: {}", square_optional_return_int(none_number));
+    println!();
+
+    enum Subjects {
+        Math,
+        Science,
+        English,
+    }
+
+    let math = Subjects::Math;
+    let science = Subjects::Science;
+    let english = Subjects::English;
+
+    // We can use if let to just match on a single item, it is basically syntactic sugar for
+    // matching with an _ to match all other values. Here we if let else and match with _ to do the
+    // same exact thing. The if let doesn't enforce total matching so it can be handy when you only
+    // want to match one thing
+    fn subject_message(sub: Subjects) {
+        match sub  {
+            Subjects::English => { println!("Let's go read!"); },
+            _ => { println!("Crunch those numbers!"); },
+        }
+
+        if let Subjects::English = sub  {
+            println!("Let's go read!");
+        } else {
+            println!("Crunch those numbers!");
+        }
+    }
+    subject_message(math);
+    subject_message(english);
+    subject_message(science);
 }
 
 fn add_two_numbers(a: i32, b: i32) -> i32 {
