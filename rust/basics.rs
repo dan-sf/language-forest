@@ -318,6 +318,79 @@ fn main() {
     subject_message(math);
     subject_message(english);
     subject_message(science);
+    println!();
+
+    // Modules
+
+    // We can create modules within our code, we also could have placed this module outside of the
+    // main function
+    pub mod tree {
+        // We need to make this function public if we want to use it in the outer scope
+        pub fn grow() {
+            println!("The tree is growing");
+        }
+
+        pub mod branch {
+            pub fn branch_here() {
+                // We can call functions from the parent module using the super keyword, this is
+                // kind of like using '..' with relative paths in linux file systems
+                super::parent_branch_function();
+            }
+        }
+
+        // Notice that we don't need to us pub here, the child module will have access to this
+        // function but we can't call this function directly outside of the tree module
+        fn parent_branch_function() {
+            println!("There is a branch here");
+        }
+
+        // We can create structs that are public but have private vars within them. This struct can
+        // not be created outside the scope of this module
+        pub struct EverGreen {
+            pub name: String,
+            size: i32,
+        }
+
+        // We need to create a generator function if we want to create an instance of EverGreen
+        // outside this scope, however the caller won't be able to access the size attribute
+        pub fn get_ever_green(name: &str) -> EverGreen {
+            EverGreen {
+                name: String::from(name),
+                size: 32,
+            }
+        }
+
+        pub fn get_ever_green_size(ever_green: &EverGreen) -> i32 {
+            ever_green.size
+        }
+
+        // Enums on the other hand will be all public if the enum is public
+        pub enum Size {
+            Small,
+            Medium,
+            Large,
+        }
+    }
+
+    tree::grow();
+    tree::branch::branch_here();
+
+    let ever_green_tree = tree::get_ever_green("my_tree");
+    println!("This is the name of my tree: {}", ever_green_tree.name); // If we tried to access size we would get a compile error
+
+    // To get the size we would need to have the module scope return it in some other way like
+    // using the public function get_ever_green_size
+    println!("This is the size of my tree: {}", tree::get_ever_green_size(&ever_green_tree));
+
+    // We can anything within the Size enum because it was declaired public
+    let _tree_small = tree::Size::Small;
+    let _tree_medium = tree::Size::Medium;
+    let _tree_large = tree::Size::Large;
+
+    // The use key word is helpful for bringing modules into scope (would work if the tree module
+    // was defined outside of the main scope
+    // use tree::branch;
+    // branch::branch_here();
 }
 
 fn add_two_numbers(a: i32, b: i32) -> i32 {
