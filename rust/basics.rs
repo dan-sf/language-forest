@@ -388,9 +388,66 @@ fn main() {
     let _tree_large = tree::Size::Large;
 
     // The use key word is helpful for bringing modules into scope (would work if the tree module
-    // was defined outside of the main scope
+    // was defined outside of the main scope, but since it isn't the below code would error)
     // use tree::branch;
     // branch::branch_here();
+
+    // Collections
+
+    println!();
+
+    let mut vector = vec![1,2,3];
+    println!("Here we have a vector: {:?}", vector);
+
+    // Add items to the vector
+    vector.push(4);
+    vector.push(5);
+
+    println!("We can add to the vector: {:?}", vector);
+
+    let v = vector[2];
+    println!("We can also grab items from the vector with indices vector[2]: {}", v);
+
+    println!("Let's interate over that vector:");
+    for i in &vector { // We need to use a reference here so we don't lose ownership of vector
+        println!("{} ", i);
+    }
+
+    let s1 = String::from("Here");
+    let s2 = String::from("we");
+    let s3 = String::from("go.");
+    let s4 = format!("{}, {}, {}", s1, s2, s3);
+    println!("We can use the format macro to return strings similar to how the println macro prints them: {}", s4);
+
+    // Note: Strings are more complex in rust than other languages, this is because rust forces the
+    // programmer to deal with the complexity of strings upfront rather than have undefined
+    // behavior in application code. All rust strings are Vec<u8> UTF-8 encoded strings. This means
+    // that strings are really just an array of bytes and accessing those bytes can mean different
+    // things for instance if the string has multi-byte chars. In that case you'd want to use the
+    // .chars() method for iterating over the chars in a string. Strings in rust require more
+    // thought on the programmer side.
+
+    use std::collections::HashMap;
+
+    let mut grades = HashMap::new();
+    grades.insert(String::from("Billy"), "B+");
+    grades.insert(String::from("Greg"), "A-");
+    println!("Rust also has HashMap types: {:?}", grades);
+    println!("We can iterate over the key value pairs:");
+    for (k, v) in &grades {
+        println!("{}: {}", k, v);
+    }
+
+    // We can do something similar to the Counter container in python by using
+    // .entry(_).or_insert(_) methods for a hash map. It will return a ref that can be updated of
+    // the value for the entry
+    let mut counter = HashMap::new();
+    for ch in "testing".chars() {
+        let count = counter.entry(ch).or_insert(0);
+        *count += 1;
+    }
+    println!("We can easily create a counter hash map in rust: {:?}", counter);
+
 }
 
 fn add_two_numbers(a: i32, b: i32) -> i32 {
