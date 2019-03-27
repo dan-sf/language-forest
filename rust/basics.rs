@@ -448,6 +448,22 @@ fn main() {
     }
     println!("We can easily create a counter hash map in rust: {:?}", counter);
 
+    // Errors
+
+    // When performing an operation that could fail (like opening a file) rust will return a Result
+    // enum which can be matched on. This forces the programmer to think about the failure case and
+    // let rust know what to do
+    use std::fs::File;
+    let not_there = File::open("abc123.txt");
+    match not_there {
+        Ok(_) => println!("We got a handle to the file"),
+        Err(e) => println!("Unfortunately, that file does not exist. Here is the error we saw: '{:?}'", e),
+    };
+
+    // Rust provides a panic! macro that can also be used to create a hard failure. It is useful in
+    // situations where we know we want to crash the program due to the state that it has gotten
+    // into
+
 }
 
 fn add_two_numbers(a: i32, b: i32) -> i32 {
