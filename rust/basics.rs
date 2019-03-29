@@ -464,6 +464,86 @@ fn main() {
     // situations where we know we want to crash the program due to the state that it has gotten
     // into
 
+    // Generics
+
+    println!();
+
+    // generic_print function outside of main
+    generic_print(10);
+    generic_print(1.0);
+    generic_print("test");
+
+    // Here we create a trait that structs can then implement
+    trait Fart {
+        fn fart(&self) -> String;
+        fn name(&self) -> String;
+    }
+
+    struct Snake {
+        name: String,
+    }
+
+    impl Fart for Snake {
+        fn fart(&self) -> String {
+            String::from("SSSSSS")
+        }
+
+        fn name(&self) -> String {
+            format!("{} the snake", self.name)
+        }
+    }
+
+    struct Computer {
+        name: String,
+    }
+
+    impl Fart for Computer {
+        fn fart(&self) -> String {
+            String::from("BEEEEEP")
+        }
+
+        fn name(&self) -> String {
+            format!("{} the computer", self.name)
+        }
+    }
+
+    struct Bear {
+        name: String,
+    }
+
+    impl Fart for Bear {
+        fn fart(&self) -> String {
+            String::from("WOOOMMP")
+        }
+
+        fn name(&self) -> String {
+            format!("{} the bear", self.name)
+        }
+    }
+
+    // Create some dudes
+    let barry = Bear{name: String::from("Barry")};
+    let sam = Snake{name: String::from("Sam")};
+    let chris = Computer{name: String::from("Chris")};
+
+    // We can take any type that implements the Fart trait as an arg to this function
+    fn break_wind<T: Fart>(dude: T) {
+        println!("Hi my name is {}.......{}", dude.name(), dude.fart());
+    }
+
+    // Lets... break wind
+    break_wind(barry);
+    break_wind(sam);
+    break_wind(chris);
+
+}
+
+fn generic_print<T: std::fmt::Display>(val: T) {
+    // Here we have a function that takes a generic type T and prints it out. The generic types for
+    // this function must implement the Display trait so that we can run print on them, which is
+    // why that is there. Traits can be shared across types which allows us to use this function
+    // for a specific subset of types that implement that trait
+    println!("This function can take any type: {}", val);
 }
 
 fn add_two_numbers(a: i32, b: i32) -> i32 {
