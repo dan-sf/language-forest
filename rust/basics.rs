@@ -475,8 +475,14 @@ fn main() {
 
     // Here we create a trait that structs can then implement
     trait Fart {
-        fn fart(&self) -> String;
+        // This function does not have a default, every type that implements this trait must
+        // implement this function
         fn name(&self) -> String;
+
+        // Here we have a default implementation of the fart function
+        fn fart(&self) -> String {
+            String::from("FART")
+        }
     }
 
     struct Snake {
@@ -521,10 +527,22 @@ fn main() {
         }
     }
 
+    struct Person {
+        name: String,
+    }
+
+    // We don't implement the fart function, here we use the default defined in the trait block
+    impl Fart for Person {
+        fn name(&self) -> String {
+            format!("{} the person", self.name)
+        }
+    }
+
     // Create some dudes
     let barry = Bear{name: String::from("Barry")};
     let sam = Snake{name: String::from("Sam")};
     let chris = Computer{name: String::from("Chris")};
+    let peter = Person{name: String::from("Peter")};
 
     // We can take any type that implements the Fart trait as an arg to this function
     fn break_wind<T: Fart>(dude: T) {
@@ -535,7 +553,37 @@ fn main() {
     break_wind(barry);
     break_wind(sam);
     break_wind(chris);
+    break_wind(peter);
 
+    // Lifetimes
+
+    println!();
+
+    let life_over_limit = [12, 34, 22, 4, 1000];
+    let life_under_limit = [12, 34, 22, 4, 73];
+    println!("Largest from life over limit: '{:?}', is '{}'", life_over_limit, top_limited(&life_over_limit, &120));
+    println!("Largest from life under limit: '{:?}', is '{}'", life_under_limit, top_limited(&life_under_limit, &120));
+
+}
+
+// This function won't compile if we don't use lifetimes ('a), it returns the top int from a list
+// unless that value is over the limiter, then it will return the given limiter
+fn top_limited<'a>(list: &'a [i32], limiter: &'a i32) -> &'a i32 {
+    let mut one: &i32 = &list[0];
+    for i in list.iter() {
+        if i > one {
+            one = i;
+        }
+    }
+
+    // We are not sure how long limiter or one lives so we just specify all the args and output
+    // have the same lifetimes
+    if one > limiter {
+        limiter
+    }
+    else {
+        one
+    }
 }
 
 fn generic_print<T: std::fmt::Display>(val: T) {
