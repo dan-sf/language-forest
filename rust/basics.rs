@@ -564,6 +564,22 @@ fn main() {
     println!("Largest from life over limit: '{:?}', is '{}'", life_over_limit, top_limited(&life_over_limit, &120));
     println!("Largest from life under limit: '{:?}', is '{}'", life_under_limit, top_limited(&life_under_limit, &120));
 
+    // Functional
+
+    println!();
+
+    // Here we can define a closure (anonymous functions)
+    let closure = |foo| {
+        println!("This is foo: {}", foo);
+    };
+    closure("bar");
+
+    let closure_no_body = |val| println!("We don't need a body if we are only executing one {}", val);
+    closure_no_body("line");
+
+    let closure_no_args = || println!("Just use || if we have no args for the closure");
+    closure_no_args();
+
 }
 
 // This function won't compile if we don't use lifetimes ('a), it returns the top int from a list
@@ -577,7 +593,8 @@ fn top_limited<'a>(list: &'a [i32], limiter: &'a i32) -> &'a i32 {
     }
 
     // We are not sure how long limiter or one lives so we just specify all the args and output
-    // have the same lifetimes
+    // have the same lifetimes, this informs the borrow checker to verify this (we aren't actually
+    // changing the lifetimes of these variables)
     if one > limiter {
         limiter
     }
