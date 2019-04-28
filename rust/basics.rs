@@ -580,6 +580,19 @@ fn main() {
     let closure_no_args = || println!("Just use || if we have no args for the closure");
     closure_no_args();
 
+    let main_scope_int = 22;
+    let closure_print_from_main_scope = || println!("We can use vars defined in the parent scope: {}", main_scope_int);
+    closure_print_from_main_scope(); // This would not work if we has used a function
+    println!();
+
+    // We can use iterators and closures together to perform functional (map/filter/reduce) types
+    // of operations
+    let functional = [1, 2, 3];
+    let mapped: Vec<i32> = functional.iter().map(|x| x + 1).collect();
+    let reduced: i32 = functional.iter().fold(0, |x, y| x + y);
+
+    println!("Let's use map to add 1 to: '{:?}' -> '{:?}'", functional, mapped);
+    println!("We can also fold (reduce in rust) to add the array's elements together: '{:?}' -> '{:?}'", functional, reduced);
 }
 
 // This function won't compile if we don't use lifetimes ('a), it returns the top int from a list
