@@ -593,7 +593,44 @@ fn main() {
 
     println!("Let's use map to add 1 to: '{:?}' -> '{:?}'", functional, mapped);
     println!("We can also fold (reduce in rust) to add the array's elements together: '{:?}' -> '{:?}'", functional, reduced);
+    println!();
+
+    let heap_int = Box::new(23);
+    println!("We can use the box type to create a pointer to some data allocated on the heap, including things that would normally be on the stack (ie ints): {}", heap_int);
+
+    // We can use the box pointer to create recursive types link linked list nodes
+    struct LinkedListNode {
+        val: i32,
+        next: Option<Box<LinkedListNode>>,
+    };
+
+    let linked_list = 
+        Some(LinkedListNode {
+            val: 10,
+            next: Some(Box::new(LinkedListNode {
+                val: 5,
+                next: Some(Box::new(LinkedListNode {
+                    val: 2,
+                    next: None,
+                })),
+            })),
+        });
+
+    print!("Here is a manually created linked list: ");
+    let mut node = linked_list;
+    while node.is_some() {
+        let raw_node = node.unwrap();
+        print!("{} -> ", raw_node.val);
+
+        node = match raw_node.next {
+            Some(data) => Some(*data),
+            None => None,
+        }
+
+    }
+    println!();
 }
+
 
 // This function won't compile if we don't use lifetimes ('a), it returns the top int from a list
 // unless that value is over the limiter, then it will return the given limiter
