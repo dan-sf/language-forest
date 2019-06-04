@@ -629,6 +629,40 @@ fn main() {
 
     }
     println!();
+
+    // Struct pattern match
+
+    struct Name {
+        first: String,
+        middle: String,
+        last: String,
+    }
+
+    let name = Name { first: String::from("Tim"), middle: String::from("Tam"), last: String::from("Tom") };
+
+    // We can use pattern matching to pull variables out of struct fields
+    let Name { first: a, middle: b, last: c } = name;
+    println!("First: {}, middle: {}, last: {}", a, b, c);
+
+
+    // Match guards can be used to add some logic to matching
+
+    let m = 10;
+    let g = true;
+
+    // Here we the first match arm will execute only if m is 9 or 10 and g is true
+    match m {
+        9 | 10 if g => println!("We matched with a guard."),
+        _ => println!("Default case"),
+    }
+
+    // Here we the first match arm will execute only if m is 9 or 10 and g is false
+    let m = 9;
+    match m {
+        9 | 10 if !g => println!("We matched with a guard."),
+        _ => println!("Default case"),
+    }
+
 }
 
 
