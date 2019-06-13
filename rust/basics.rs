@@ -662,6 +662,56 @@ fn main() {
         9 | 10 if !g => println!("We matched with a guard."),
         _ => println!("Default case"),
     }
+    println!();
+
+    // Un-safe rust (not bad or frowned upon it just means that the developer must ensure safty, not the compiler)
+
+    // There are for types of things you can do with unsafe rust code
+    // - Dereference a raw pointer
+    // - Call an unsafe function or method (ie if you need to interface with C)
+    // - Access or modify a mutable static variable (globals)
+    // - Implement an unsafe trait
+
+    // Here is an example of using the unsafe keyword to dereference a raw pointer
+
+    let mut data_val = 10;
+    let read_raw = &data_val as *const i32;
+    let write_raw = &mut data_val as *mut i32;
+
+    unsafe {
+        println!("Let's dereference a raw pointer - read_raw: {}", *read_raw);
+        println!("Let's dereference a raw pointer - write_raw: {}", *write_raw);
+        *write_raw = 15;
+        println!("Let's dereference a raw pointer - read_raw: {}", *read_raw);
+        println!("Let's dereference a raw pointer - write_raw: {}", *write_raw);
+    }
+    println!();
+
+    // Function pointers
+
+    fn add_args(a: i32, b: i32) -> i32 {
+        a + b
+    }
+
+    fn sub_args(a: i32, b: i32) -> i32 {
+        a - b
+    }
+
+    fn mul_args(a: i32, b: i32) -> i32 {
+        a * b
+    }
+
+    // We can pass function pointers around if we want to
+    fn operate_on_args(a: i32, b: i32, operator: fn(i32, i32) -> i32) -> i32 {
+        operator(a, b)
+    }
+
+    let a = 12;
+    let b = 32;
+    println!("Let's do some basic math using function pointers.");
+    println!("{} + {} = {}", a, b, operate_on_args(a, b, add_args));
+    println!("{} - {} = {}", a, b, operate_on_args(a, b, sub_args));
+    println!("{} * {} = {}", a, b, operate_on_args(a, b, mul_args));
 
 }
 
