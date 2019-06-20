@@ -1,0 +1,14 @@
+[package]
+name = "small-web"
+version = "0.1.0"
+authors = ["dan-sf"]
+edition = "2018"
+
+[dependencies]
+
+[lib]
+name = "small_web"
+
+[[bin]]
+name = "main"
+path = "src/bin/main.rs"
