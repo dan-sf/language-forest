@@ -27,14 +27,23 @@ fn main() {
     let b64_table = init_b64_table();
     let mut output = String::new();
 
-    let f = fs::File::open("test.tmp").unwrap();
-    let b = fs::read("test.tmp").unwrap();
+    let test_file = fs::File::open("test.tmp").unwrap();
+    let read_bytes = fs::read("test.tmp").unwrap();
 
-    for i in b.iter() {
-        if let Some(ch) = b64_table.get(i) {
+    let mut b_iter = read_bytes.iter();
+    let mut cur = b_iter.next().unwrap();
+    println!("this is cur: {}", cur);
+
+    for byte in b_iter {
+        let next = byte;
+        println!("cur: {}, next: {}", cur, next);
+
+        cur = next;
+
+        if let Some(ch) = b64_table.get(byte) {
             println!("char {}", ch);
         }
 
-        println!("{}", i);
+        println!("{}", byte);
     }
 }

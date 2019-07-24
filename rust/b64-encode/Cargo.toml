@@ -2,7 +2,7 @@
 name = "b64-encode"
 version = "0.1.0"
 authors = ["dan-sf"]
-edition = "2019"
+edition = "2018"
 
 [dependencies]
 
