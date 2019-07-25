@@ -34,16 +34,48 @@ fn main() {
     let mut cur = b_iter.next().unwrap();
     println!("this is cur: {}", cur);
 
-    for byte in b_iter {
-        let next = byte;
-        println!("cur: {}, next: {}", cur, next);
+    let mut offset = 0;
 
-        cur = next;
+    // for byte in b_iter {
+    //     let next = byte;
+    //     println!("cur: {}, next: {}", cur, next);
 
-        if let Some(ch) = b64_table.get(byte) {
-            println!("char {}", ch);
-        }
+    //     cur = next;
 
-        println!("{}", byte);
-    }
+    //     if let Some(ch) = b64_table.get(byte) {
+    //         println!("char {}", ch);
+    //     }
+
+    //     println!("{}", byte);
+
+    //     offset += 6;
+    // }
+
+    let next = b_iter.next().unwrap();
+
+    //let first = (((1<<6)-1)<<2 & cur)>>2;
+    let first = cur>>2;
+    let left = (cur<<6)>>6;
+    let b64_ch = match b64_table.get(&first) {
+        Some(ch) => ch,
+        _ => &'%',
+    };
+
+    println!("First: {}, cur: {}, first: {}, left: {}", b64_ch, cur, first, left);
+
+    cur = next;
+
+    // ----
+
+    let next = b_iter.next().unwrap();
+
+    let first = (((1<<6)-1)<<2 & cur)>>2;
+    let b64_ch = match b64_table.get(&first) {
+        Some(ch) => ch,
+        _ => &'%',
+    };
+
+    println!("First: {}, cur: {}, first: {}", b64_ch, cur, first);
+
+    cur = next;
 }
