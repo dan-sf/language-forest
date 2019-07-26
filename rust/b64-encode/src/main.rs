@@ -32,7 +32,6 @@ fn main() {
 
     let mut b_iter = read_bytes.iter();
     let mut cur = b_iter.next().unwrap();
-    println!("this is cur: {}", cur);
 
     let mut offset = 0;
 
@@ -51,9 +50,10 @@ fn main() {
     //     offset += 6;
     // }
 
+    // ----
+
     let next = b_iter.next().unwrap();
 
-    //let first = (((1<<6)-1)<<2 & cur)>>2;
     let first = cur>>2;
     let left = (cur<<6)>>6;
     let b64_ch = match b64_table.get(&first) {
@@ -61,7 +61,7 @@ fn main() {
         _ => &'%',
     };
 
-    println!("First: {}, cur: {}, first: {}, left: {}", b64_ch, cur, first, left);
+    println!("b64_ch: {}, cur: {} -> {1:b}, first: {} -> {2:b}, left: {} -> {3:b}", b64_ch, cur, first, left);
 
     cur = next;
 
@@ -69,13 +69,47 @@ fn main() {
 
     let next = b_iter.next().unwrap();
 
-    let first = (((1<<6)-1)<<2 & cur)>>2;
+    let first = cur>>4 ^ left<<4;
+    let left = (cur<<4)>>4;
+
     let b64_ch = match b64_table.get(&first) {
         Some(ch) => ch,
         _ => &'%',
     };
 
-    println!("First: {}, cur: {}, first: {}", b64_ch, cur, first);
+    println!("b64_ch: {}, cur: {} -> {1:b}, first: {} -> {2:b}, left: {} -> {3:b}", b64_ch, cur, first, left);
+
+    cur = next;
+
+    // ----
+
+    let next = b_iter.next().unwrap();
+
+    let first = cur>>6 ^ left<<2;
+    let left = (cur<<2)>>2;
+
+    let b64_ch = match b64_table.get(&first) {
+        Some(ch) => ch,
+        _ => &'%',
+    };
+
+    println!("b64_ch: {}, cur: {} -> {1:b}, first: {} -> {2:b}, left: {} -> {3:b}", b64_ch, cur, first, left);
+
+    cur = next;
+
+    // ----
+
+    //let next = b_iter.next().unwrap(); // Not needed here
+
+    let first = left;
+    //let left = (cur<<2)>>2; // Not needed here
+
+    let b64_ch = match b64_table.get(&first) {
+        Some(ch) => ch,
+        _ => &'%',
+    };
+
+    println!("b64_ch: {}, cur: {} -> {1:b}, first: {} -> {2:b}, left: {} -> {3:b}", b64_ch, cur, first, left);
 
     cur = next;
 }
