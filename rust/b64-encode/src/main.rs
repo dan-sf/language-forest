@@ -31,25 +31,76 @@ fn main() {
     let read_bytes = fs::read("test.tmp").unwrap();
 
     let mut b_iter = read_bytes.iter();
+
     let mut cur = b_iter.next().unwrap();
 
     let mut offset = 0;
+    let mut count = 0;
 
-    // for byte in b_iter {
-    //     let next = byte;
-    //     println!("cur: {}, next: {}", cur, next);
+    let mut first = 0 as u8;
+    let mut left = 0 as u8;
 
-    //     cur = next;
+    for byte in b_iter {
+        let next = byte;
+        let cmod = count % 3;
+        let mut print_left = false;
 
-    //     if let Some(ch) = b64_table.get(byte) {
-    //         println!("char {}", ch);
-    //     }
+        if cmod == 0 {
+            first = cur>>2;
+            left = (cur<<6)>>6;
+        } else if cmod == 1 {
+            first = cur>>4 ^ left<<4;
+            left = (cur<<4)>>4;
+        } else if cmod == 2 {
+            first = cur>>6 ^ left<<2;
+            left = (cur<<2)>>2;
+            print_left = true;
+        }
+        // } else if cmod == 3 { // Without this block I miss every fourth char but get most of it, with it we get messed up after the 4th char
+        //     first = left;
+        // }
 
-    //     println!("{}", byte);
+        let b64_ch = match b64_table.get(&first) {
+            Some(ch) => ch,
+            _ => &'%',
+        };
 
-    //     offset += 6;
+        println!("b64_ch: {}, cur: {} -> {1:b}, next: {} -> {2:b}, first: {} -> {3:b}, left: {} -> {4:b}", b64_ch, cur, next, first, left);
+        cur = next;
+        count += 1;
+
+        if print_left {
+            let l = match b64_table.get(&left) {
+                Some(ch) => ch,
+                _ => &'%',
+            };
+            println!("this is left: {},",l);
+        }
+
+    }
+
+    let cmod = count % 3;
+
+    // if cmod == 0 {
+    //     first = cur>>2;
+    //     left = (cur<<6)>>6;
+    // } else if cmod == 1 {
+    //     first = cur>>4 ^ left<<4;
+    //     left = (cur<<4)>>4;
+    // } else if cmod == 2 {
+    //     first = cur>>6 ^ left<<2;
+    //     left = (cur<<2)>>2;
     // }
+    first = left;
 
+    let b64_ch = match b64_table.get(&first) {
+        Some(ch) => ch,
+        _ => &'%',
+    };
+
+    println!("b64_ch: {}, cur: {} -> {1:b}, first: {} -> {2:b}, left: {} -> {3:b}", b64_ch, cur, first, left);
+
+    /*
     // ----
 
     let next = b_iter.next().unwrap();
@@ -112,4 +163,5 @@ fn main() {
     println!("b64_ch: {}, cur: {} -> {1:b}, first: {} -> {2:b}, left: {} -> {3:b}", b64_ch, cur, first, left);
 
     cur = next;
+    */
 }
