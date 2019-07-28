@@ -1,4 +1,5 @@
 use std::fs;
+use std::env;
 use std::collections::HashMap;
 
 fn init_b64_table() -> HashMap<u8, char> {
@@ -31,6 +32,11 @@ fn push_char(output: &mut String, table: &HashMap<u8, char>, val: u8) {
 }
 
 fn main() {
+
+    // @TODO: Enable specifiing the file with command line args: -i <file> -o <file> for inputfile and output files, default to using stdin/stdout
+    let args: Vec<String> = env::args().collect();
+    println!("args: {:?}", args);
+
     let b64_table = init_b64_table();
     let mut output = String::new();
 
@@ -67,16 +73,26 @@ fn main() {
 
     let cmod = count % 3;
 
-    // if cmod == 0 {
-    //     first = cur>>2;
-    //     left = (cur<<6)>>6;
-    // } else if cmod == 1 {
-    //     first = cur>>4 ^ left<<4;
-    //     left = (cur<<4)>>4;
-    // } else if cmod == 2 {
-    //     first = cur>>6 ^ left<<2;
-    //     left = (cur<<2)>>2;
-    // }
-    first = left;
+    // @TODO: Validate the operations for the changes to left below
+    if cmod == 0 {
+        first = cur>>2;
+        left = (cur<<6)>>2; // @Note: not sure if this is right ...
+        push_char(&mut output, &b64_table, first);
+        push_char(&mut output, &b64_table, left);
+        output.push('=');
+        output.push('=');
+    } else if cmod == 1 {
+        first = cur>>4 ^ left<<4;
+        left = (cur<<4)>>2; // @Note: This may be incorrect, we might want (cur<<2)>>2 ...
+        push_char(&mut output, &b64_table, first);
+        push_char(&mut output, &b64_table, left);
+        output.push('=');
+    } else if cmod == 2 {
+        first = cur>>6 ^ left<<2;
+        left = (cur<<2)>>2;
+        push_char(&mut output, &b64_table, first);
+        push_char(&mut output, &b64_table, left);
+    }
+
     println!("{}", output);
 }
