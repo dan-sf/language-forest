@@ -1,6 +1,9 @@
 use std::fs;
 use std::env;
 use std::collections::HashMap;
+use std::io::Read;
+use std::io::Write;
+use std::process;
 
 fn init_b64_table() -> HashMap<u8, char> {
     let mut table: HashMap<u8, char> = HashMap::with_capacity(64);
@@ -23,26 +26,11 @@ fn init_b64_table() -> HashMap<u8, char> {
     table
 }
 
-fn push_char(output: &mut String, table: &HashMap<u8, char>, val: u8) {
-    let b64_ch = match table.get(&val) {
-        Some(ch) => ch,
-        _ => &'%',
-    };
-    output.push(*b64_ch);
-}
-
-fn main() {
-
-    // @TODO: Enable specifiing the file with command line args: -i <file> -o <file> for inputfile and output files, default to using stdin/stdout
-    let args: Vec<String> = env::args().collect();
-    println!("args: {:?}", args);
-
-    let b64_table = init_b64_table();
+fn base_64_encode(bytes: Vec<u8>, b64_table: &HashMap<u8, char>) -> String {
     let mut output = String::new();
 
-    let read_bytes = fs::read("test.tmp").unwrap();
-    let mut b_iter = read_bytes.iter();
-    let mut cur = b_iter.next().unwrap();
+    let mut b_iter = bytes.iter();
+    let mut cur = b_iter.next().unwrap(); // @TODO: Handle errors here
 
     let mut count = 0;
     let mut first: u8 = 0;
@@ -55,16 +43,16 @@ fn main() {
         if cmod == 0 {
             first = cur>>2;
             left = (cur<<6)>>6;
-            push_char(&mut output, &b64_table, first);
+            push_char(&mut output, b64_table, first);
         } else if cmod == 1 {
             first = cur>>4 ^ left<<4;
             left = (cur<<4)>>4;
-            push_char(&mut output, &b64_table, first);
+            push_char(&mut output, b64_table, first);
         } else if cmod == 2 {
             first = cur>>6 ^ left<<2;
             left = (cur<<2)>>2;
-            push_char(&mut output, &b64_table, first);
-            push_char(&mut output, &b64_table, left);
+            push_char(&mut output, b64_table, first);
+            push_char(&mut output, b64_table, left);
         }
 
         cur = next;
@@ -77,22 +65,75 @@ fn main() {
     if cmod == 0 {
         first = cur>>2;
         left = (cur<<6)>>2; // @Note: not sure if this is right ...
-        push_char(&mut output, &b64_table, first);
-        push_char(&mut output, &b64_table, left);
+        push_char(&mut output, b64_table, first);
+        push_char(&mut output, b64_table, left);
         output.push('=');
         output.push('=');
     } else if cmod == 1 {
         first = cur>>4 ^ left<<4;
         left = (cur<<4)>>2; // @Note: This may be incorrect, we might want (cur<<2)>>2 ...
-        push_char(&mut output, &b64_table, first);
-        push_char(&mut output, &b64_table, left);
+        push_char(&mut output, b64_table, first);
+        push_char(&mut output, b64_table, left);
         output.push('=');
     } else if cmod == 2 {
         first = cur>>6 ^ left<<2;
         left = (cur<<2)>>2;
-        push_char(&mut output, &b64_table, first);
-        push_char(&mut output, &b64_table, left);
+        push_char(&mut output, b64_table, first);
+        push_char(&mut output, b64_table, left);
     }
 
+    output
+}
+
+fn push_char(output: &mut String, table: &HashMap<u8, char>, val: u8) {
+    let b64_ch = match table.get(&val) {
+        Some(ch) => ch,
+        _ => &'%',
+    };
+    output.push(*b64_ch);
+}
+
+struct IOSetUp {
+    input: Box<dyn Read>,
+    output: Box<dyn Write>,
+}
+
+fn usage() {
+    println!("This is how you us it"); // @Update
+}
+
+fn main() {
+    // @TODO: Enable specifiing the file with command line args: -i <file> -o <file> for inputfile and output files, default to using stdin/stdout
+    let args: Vec<String> = env::args().collect();
+
+    let mut args_iter = args[1..].iter();
+    while let Some(arg) = args_iter.next() {
+        println!("{}", arg);
+        if arg == "-i" || arg == "--input" {
+            println!("we got input: {}", arg);
+            if let Some(arg) = args_iter.next() {
+                println!("this is next: {}", arg);
+            }
+        } else if arg == "-o" || arg == "--output" {
+            println!("we got output: {}", arg);
+            if let Some(arg) = args_iter.next() {
+                println!("this is next: {}", arg);
+            }
+        } else if arg == "-h" || arg == "--help" {
+            usage();
+            process::exit(0);
+        } else {
+            // Error, unrecognized input
+            usage();
+            process::exit(1);
+        }
+    }
+
+    println!("args: {:?}", args);
+
+    let b64_table = init_b64_table();
+    let read_bytes = fs::read("test.tmp").unwrap();
+
+    let output = base_64_encode(read_bytes, &b64_table);
     println!("{}", output);
 }
