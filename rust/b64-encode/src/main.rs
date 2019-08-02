@@ -1,8 +1,7 @@
 use std::fs;
 use std::env;
+use std::io::{self, Read, Write};
 use std::collections::HashMap;
-use std::io::Read;
-use std::io::Write;
 use std::process;
 
 fn init_b64_table() -> HashMap<u8, char> {
@@ -99,41 +98,59 @@ struct IOSetUp {
 }
 
 fn usage() {
-    println!("This is how you us it"); // @Update
+    let message = format!("{}{}{}{}{}",
+        "Usage:  b64-encode [-h] [-i in_file] [-o out_file]\n",
+        "-h, --help        display this message\n",
+        "-i, --input       input file (default: stdin)\n",
+        "-o, --output      output file (default: stdout)\n",
+        "-n, --no-newline  remove trailing newline from output\n");
+    io::stdout().write_all(message.as_bytes()).unwrap();
 }
 
 fn main() {
-    // @TODO: Enable specifiing the file with command line args: -i <file> -o <file> for inputfile and output files, default to using stdin/stdout
     let args: Vec<String> = env::args().collect();
+    let mut newline = true;
 
+    // Default input/output to stdin/stdout
+    let mut io_setup = IOSetUp {
+        input: Box::new(io::stdin()),
+        output: Box::new(io::stdout()),
+    };
+
+    // Parse args
     let mut args_iter = args[1..].iter();
     while let Some(arg) = args_iter.next() {
-        println!("{}", arg);
         if arg == "-i" || arg == "--input" {
-            println!("we got input: {}", arg);
             if let Some(arg) = args_iter.next() {
-                println!("this is next: {}", arg);
+                io_setup.input = Box::new(fs::File::open(arg).unwrap());
             }
         } else if arg == "-o" || arg == "--output" {
-            println!("we got output: {}", arg);
             if let Some(arg) = args_iter.next() {
-                println!("this is next: {}", arg);
+                let file = fs::OpenOptions::new().write(true)
+                    .truncate(true)
+                    .create(true)
+                    .open(arg).unwrap();
+                io_setup.output = Box::new(file);
             }
+        } else if arg == "-n" || arg == "--no-newline" {
+            newline = false;
         } else if arg == "-h" || arg == "--help" {
             usage();
             process::exit(0);
         } else {
-            // Error, unrecognized input
+            io::stderr().write_all(
+                format!("Error, unrecognized input - '{}'\n", arg).as_bytes()).unwrap();
             usage();
             process::exit(1);
         }
     }
 
-    println!("args: {:?}", args);
-
     let b64_table = init_b64_table();
-    let read_bytes = fs::read("test.tmp").unwrap();
+    let read_bytes = io_setup.input.bytes();
 
-    let output = base_64_encode(read_bytes, &b64_table);
-    println!("{}", output);
+    let encoded = base_64_encode(read_bytes.map(|r| r.unwrap()).collect(), &b64_table);
+    io_setup.output.write(encoded.as_bytes()).unwrap();
+    if newline {
+        io_setup.output.write(String::from("\n").as_bytes()).unwrap();
+    }
 }
