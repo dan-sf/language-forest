@@ -1,4 +1,5 @@
 use std::fs;
+use std::fmt;
 use std::env;
 use std::error;
 use std::io::{self, Read, Write};
@@ -6,14 +7,18 @@ use std::collections::HashMap;
 use std::process;
 
 
-fn usage() {
+fn usage_string() -> String {
     let message = format!("{}{}{}{}{}",
         "Usage:  b64-encode [-h] [-i in_file] [-o out_file]\n",
         "-h, --help        display this message\n",
         "-i, --input       input file (default: stdin)\n",
         "-o, --output      output file (default: stdout)\n",
         "-n, --no-newline  remove trailing newline from output\n");
-    io::stdout().write_all(message.as_bytes()).expect(
+    message
+}
+
+fn usage_to_stdout() {
+    io::stdout().write_all(usage_string().as_bytes()).expect(
                 "Error: unexpected issue writing to stdout");
 }
 
@@ -117,7 +122,24 @@ struct IOSetUp {
     output: Box<dyn Write>,
 }
 
-fn main() -> Result<(), Box<error::Error>> { // @Question: does it make sense to return from main here???
+struct ParseError;
+
+impl fmt::Display for ParseError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "CLI parsing error")
+    }
+}
+
+impl fmt::Debug for ParseError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{{ file: {}, line: {} }}", file!(), line!()) // programmer-facing output
+        //write!(f, "CLI parsing error")
+    }
+}
+
+impl error::Error for ParseError { }
+
+fn main() -> Result<(), Box<error::Error>> {
     let args: Vec<String> = env::args().collect();
     let mut newline = true;
 
@@ -132,30 +154,36 @@ fn main() -> Result<(), Box<error::Error>> { // @Question: does it make sense to
     while let Some(arg) = args_iter.next() {
         if arg == "-i" || arg == "--input" {
             if let Some(arg) = args_iter.next() {
-                //io_setup.input = Box::new(fs::File::open(arg).expect(
-                //        format!("b64-encode error: Unexpected issue opening input file: {}", arg).as_ref()));
-                io_setup.input = Box::new(fs::File::open(arg)?); // Using '?' will cause the program to error an just return here ... (should I use this?)
+                io_setup.input = Box::new(fs::File::open(arg)?);
+            } else {
+                io::stderr().write_all(b"Error, please provide input file\n")?;
+                usage_to_stdout();
+                process::exit(1);
             }
         } else if arg == "-o" || arg == "--output" {
             if let Some(arg) = args_iter.next() {
                 let file = fs::OpenOptions::new().write(true)
                     .truncate(true)
                     .create(true)
-                    .open(arg).expect(
-                        format!("b64-encode error: Unexpected issue opening output file: {}", arg).as_ref());
+                    .open(arg)?;
                 io_setup.output = Box::new(file);
+            } else {
+                io::stderr().write_all(b"Error, please provide output file\n")?;
+                usage_to_stdout();
+                process::exit(1);
             }
         } else if arg == "-n" || arg == "--no-newline" {
             newline = false;
         } else if arg == "-h" || arg == "--help" {
-            usage();
-            process::exit(0);
+            usage_to_stdout();
+            return Ok(());
         } else {
             io::stderr().write_all(
-                format!("Error, unrecognized input - '{}'\n", arg).as_bytes()).expect(
-                    "Error: unexpected issue writing to stderr");
-            usage();
-            process::exit(1);
+                format!("Error, unrecognized input: '{}'\n{}", arg, usage_string()).as_bytes())?;
+            // @Note: Might make sense to create a custom error for parsing and return that rather
+            // than exit the process
+            //process::exit(1);
+            return Err(Box::new(ParseError));
         }
     }
 
@@ -166,11 +194,10 @@ fn main() -> Result<(), Box<error::Error>> { // @Question: does it make sense to
             |r| r.expect(
                 "b64-encode error: Unexpected issue reading input binary data")
             ).collect(), &b64_table);
-    io_setup.output.write(encoded.as_bytes()).expect(
-        "b64-encode error: Unexpected issue writing to the given output file");
+    io_setup.output.write(encoded.as_bytes())?;
     if newline {
-        io_setup.output.write(String::from("\n").as_bytes()).expect(
-            "b64-encode error: Unexpected issue writing to the given output file");
+        io_setup.output.write(String::from("\n").as_bytes())?;
     }
     Ok(())
 }
+
