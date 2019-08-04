@@ -1,38 +1,47 @@
+use std::io;
 use std::fmt;
 use std::error;
-use std::io::{self, Write};
 use std::collections::HashMap;
 
 
-// @TODO: Make error output better giving more info on if we get an io::Error returned, we want to
-// make sure that info bubbles up
-// Also, check the encoding function to make sure we are doing the right thing at the end
+// Custom error which wraps both io errors and encoding errors in one type
+pub enum EncodeError {
+    Io(io::Error),
+    Encode,
+}
 
-pub struct EncodeError;
-
-impl EncodeError {
-    fn new() -> Self {
-        Self
+impl fmt::Debug for EncodeError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            EncodeError::Io(ref e) => e.fmt(f),
+            EncodeError::Encode =>
+                write!(f, "No data to encode"),
+        }
     }
 }
 
 impl fmt::Display for EncodeError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "CLI encoding error")
+        match *self {
+            EncodeError::Io(ref e) => e.fmt(f),
+            EncodeError::Encode =>
+                write!(f, "Encoding error"),
+        }
     }
 }
-
-impl fmt::Debug for EncodeError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{{ file: {}, line: {} }}", file!(), line!())
-    }
-}
-
-impl error::Error for EncodeError { }
 
 impl From<io::Error> for EncodeError {
-    fn from(_error: io::Error) -> Self {
-        EncodeError::new()
+    fn from(error: io::Error) -> Self {
+        EncodeError::Io(error)
+    }
+}
+
+impl error::Error for EncodeError {
+    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
+        match *self {
+            EncodeError::Encode => None,
+            EncodeError::Io(ref e) => Some(e),
+        }
     }
 }
 
@@ -65,8 +74,7 @@ pub fn base_64_encode(bytes: Vec<u8>) -> Result<String, EncodeError> {
     let mut cur = match b_iter.next() {
         Some(it) => it,
         None => {
-            io::stderr().write_all(b"b64-encode Error: no data to encode\n")?;
-            return Err(EncodeError);
+            return Err(EncodeError::Encode);
         }
     };
 
