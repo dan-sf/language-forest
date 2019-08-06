@@ -72,3 +72,22 @@ pub fn parse(args: Vec<String>) -> Result<Parsed, io::Error> {
     Ok(parsed)
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::Path;
+
+    #[test]
+    fn args_with_input() {
+        let temp_path = "/tmp/foo.txt";
+        let _tf = fs::File::create(Path::new(temp_path)).unwrap();
+        // @Note: We will need to cleanup the output file as well ...
+        let args: Vec<String> = format!("b64-encode -i {} -o bar -n", temp_path).split(' ').map(|r| r.to_string()).collect();
+        let parsed = parse(args).unwrap();
+        assert!(!parsed.newline);
+
+        fs::remove_file(Path::new(temp_path)).unwrap();
+        assert!(true);
+    }
+}
+

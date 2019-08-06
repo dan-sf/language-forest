@@ -105,18 +105,17 @@ pub fn base_64_encode(bytes: Vec<u8>) -> Result<String, EncodeError> {
         count += 1;
     }
 
-    // @TODO: Validate the operations for the changes to left below
     let cmod = count % 3;
     if cmod == 0 {
         first = cur>>2;
-        left = (cur<<6)>>2; // @Note: not sure if this is right ...
+        left = (cur<<6)>>2;
         push_char(&mut output, &b64_table, first);
         push_char(&mut output, &b64_table, left);
         output.push('=');
         output.push('=');
     } else if cmod == 1 {
         first = cur>>4 ^ left<<4;
-        left = (cur<<4)>>2; // @Note: This may be incorrect, we might want (cur<<2)>>2 ...
+        left = (cur<<4)>>2;
         push_char(&mut output, &b64_table, first);
         push_char(&mut output, &b64_table, left);
         output.push('=');
@@ -136,5 +135,63 @@ fn push_char(output: &mut String, table: &HashMap<u8, char>, val: u8) {
         _ => &'%',
     };
     output.push(*b64_ch);
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn encode_no_padding () {
+        let actual = base_64_encode(String::from("Man").as_bytes().to_vec()).unwrap();
+        let expected = String::from("TWFu");
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn encode_single_padding () {
+        let actual = base_64_encode(String::from("Ma").as_bytes().to_vec()).unwrap();
+        let expected = String::from("TWE=");
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn encode_double_padding () {
+        let actual = base_64_encode(String::from("M").as_bytes().to_vec()).unwrap();
+        let expected = String::from("TQ==");
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn longer_encode_no_padding () {
+        let actual = base_64_encode(String::from("foobar").as_bytes().to_vec()).unwrap();
+        let expected = String::from("Zm9vYmFy");
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn longer_encode_single_padding () {
+        let actual = base_64_encode(String::from("fooba").as_bytes().to_vec()).unwrap();
+        let expected = String::from("Zm9vYmE=");
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn longer_encode_double_padding () {
+        let actual = base_64_encode(String::from("foob").as_bytes().to_vec()).unwrap();
+        let expected = String::from("Zm9vYg==");
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn no_data_error() {
+        let actual = base_64_encode(String::from("").as_bytes().to_vec());
+        let expected = match actual {
+            Err(_) => true,
+            _ => false,
+        };
+        assert!(expected);
+    }
 }
 
