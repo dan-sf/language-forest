@@ -79,15 +79,32 @@ mod tests {
 
     #[test]
     fn args_with_input() {
-        let temp_path = "/tmp/foo.txt";
-        let _tf = fs::File::create(Path::new(temp_path)).unwrap();
-        // @Note: We will need to cleanup the output file as well ...
-        let args: Vec<String> = format!("b64-encode -i {} -o bar -n", temp_path).split(' ').map(|r| r.to_string()).collect();
-        let parsed = parse(args).unwrap();
-        assert!(!parsed.newline);
+        let temp_input_path = "/tmp/in-b64-test.txt";
+        let temp_output_path = "/tmp/out-b64-test.txt";
+        {
+            let _tfi = fs::File::create(Path::new(temp_input_path)).unwrap();
+            let _tfo = fs::File::create(Path::new(temp_output_path)).unwrap();
+        }
+        let args: Vec<String> = format!("b64-encode -i {} -o {} -n", temp_input_path, temp_output_path)
+            .split(' ').map(|r| r.to_string()).collect();
+        {
+            let parsed = parse(args).unwrap();
+            assert!(!parsed.newline);
+        }
 
-        fs::remove_file(Path::new(temp_path)).unwrap();
-        assert!(true);
+        fs::remove_file(Path::new(temp_input_path)).unwrap();
+        fs::remove_file(Path::new(temp_output_path)).unwrap();
+    }
+
+    #[test]
+    fn no_args() {
+        let args: Vec<String> = format!("b64-encode")
+            .split(' ').map(|r| r.to_string()).collect();
+        {
+            let parsed = parse(args).unwrap();
+            assert!(parsed.newline);
+            // assert!(*parsed.output == io::stdout()); // I'd like to be able to assert about the input/output but I'm not sure how
+        }
     }
 }
 
