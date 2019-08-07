@@ -54,11 +54,33 @@ The cargo apps were created by running `cargo new <CRATENAME> --vcs none`, the
 The [small-web](small-web) package was built by following along with the final
 project in the rust book. I also wanted to do a project from scratch. The
 [b64-encode](b64-encode) crate is what I came up with for a more real world
-project. It's a cli tool that can be used to convert binary data to
+program. It's a cli tool that can be used to convert binary or text data to
 [base 64](https://en.wikipedia.org/wiki/Base64). For usage run the following in
 the `b64-encode` create.
 
 ```bash
 cargo run -- -h
+Usage:  b64-encode [-h] [-i in_file] [-o out_file]
+-h, --help        display this message
+-i, --input       input file (default: stdin)
+-o, --output      output file (default: stdout)
+-n, --no-newline  remove trailing newline from output
+```
+
+Examples:
+
+```bash
+cd b64-encode
+echo abc123 | cargo run
+YWJjMTIzCg==
+
+echo foo > tmp
+cargo run -- -i tmp
+Zm9vCg==
+
+echo test > tmp
+cargo run -- -i tmp -o out
+cat out
+dGVzdAo=
 ```
 
