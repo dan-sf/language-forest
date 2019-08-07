@@ -78,7 +78,7 @@ mod tests {
     use std::path::Path;
 
     #[test]
-    fn args_with_input() {
+    fn args_with_input_output() {
         let temp_input_path = "/tmp/in-b64-test.txt";
         let temp_output_path = "/tmp/out-b64-test.txt";
         {
@@ -100,11 +100,16 @@ mod tests {
     fn no_args() {
         let args: Vec<String> = format!("b64-encode")
             .split(' ').map(|r| r.to_string()).collect();
-        {
-            let parsed = parse(args).unwrap();
-            assert!(parsed.newline);
-            // assert!(*parsed.output == io::stdout()); // I'd like to be able to assert about the input/output but I'm not sure how
-        }
+        let parsed = parse(args).unwrap();
+        assert!(parsed.newline);
+    }
+
+    #[test]
+    fn no_newline() {
+        let args: Vec<String> = format!("b64-encode -n")
+            .split(' ').map(|r| r.to_string()).collect();
+        let parsed = parse(args).unwrap();
+        assert!(!parsed.newline);
     }
 }
 
