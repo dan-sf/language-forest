@@ -169,10 +169,102 @@ namespace Basics {
             print($"We are able to print values returned from classes: '{construct.getIt()}'");
             construct.printIt();
 
+            nl();
+            var tup = (1, 2);
+            (var t0, var t1) = tup;
+            print($"We can use tuples to pack vars: {tup}, and we can also unpack them: {t0}, {t1}");
 
-            // Do some tuple stuff
+
+            int addThem(int a = 0, int b = 0, int c = 0) {
+                return a + b + c;
+            }
+            print($"Here we use optional named arguments: {addThem(10,10)}, {addThem(12)}, {addThem(1, 2, 7)}");
+
+            void plusOne(ref int x) {
+                x += 1;
+            }
+
+            int refAdd = 123;
+            print($"We can also force functions to take variable by reference, refAdd before: {refAdd}");
+            plusOne(ref refAdd);
+            print($"refAdd after: {refAdd}");
+            nl();
+
+            // In C# we also have structs, the main difference between a class
+            // and a struct here is that structs are allocated on the stack and
+            // classes are allocated in the heap. Also, you cannot inherit from
+            // a stack
+
+            var p = new Point { x=1, y=2};
+            print($"Here we have a struct point allocated on the stack: '{p}'");
+            nl();
+
+            var gs = new GettersSetters();
+            print($"Getters and setters are slightly different in C#, we can define them with the get and set keywords. Lets print a default name: '{gs.Name}'");
+            gs.Name = "Billy";
+            print($"Lets print a name after we have set it to something: '{gs.Name}'");
+
+            var gs2 = new GettersSetters2 { field1 = "foo", field2 = "bar" };
+            var gs3 = new GettersSetters3 { field1 = "foo", field2 = "bar" };
+            print($"We can use default getters and setters similarly to public attributes: gs2: '{gs2.field1} {gs2.field2}' gs3: '{gs3.field1} {gs3.field2}' ");
+            gs2.field1 = "baz";
+            gs2.field2 = "bop";
+            gs3.field1 = "baz";
+            gs3.field2 = "bop";
+            print($"After setting vars: gs2: '{gs2.field1} {gs2.field2}' gs3: '{gs3.field1} {gs3.field2}' ");
+
+            nl();
+            var parent = new Parent();
+            var child = new Child();
+            print("We can also use inheritance if needed");
+            parent.p();
+            child.p();
+
         }
     }
+
+    struct Point {
+        public int x;
+        public int y;
+        public override string ToString() {
+            return $"x: {x}, y: {y}";
+        }
+    }
+
+    // Simple example of inheritance, we need to mark parent functions as
+    // virtual if we want to override them in the child class
+    class Parent {
+        public virtual void p() {
+            Console.WriteLine("Parent");
+        }
+    }
+
+    class Child : Parent {
+        public override void p() {
+            Console.WriteLine("Child");
+        }
+    }
+
+    class GettersSetters {
+        string name = default(string);
+
+        public string Name {
+            get { return name; }
+            set { name = value; }
+        }
+    }
+
+    // The two classes are basically the same, here we show how the default
+    // get/set commands work
+    class GettersSetters2 {
+        public string field1 { get; set; }
+        public string field2 { get; set; }
+    }
+    class GettersSetters3 {
+        public string field1;
+        public string field2;
+    }
+
 
     class AnotherClass {
         public int x = 123;
@@ -193,5 +285,4 @@ namespace Basics {
             return this.val;
         }
     }
-
 }
