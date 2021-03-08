@@ -220,6 +220,19 @@ namespace Basics {
             parent.p();
             child.p();
 
+            nl();
+            print("We can use the LINQ system for interacting with sequenced data in a way that is somewhat similar to how you can query data with sql");
+            string[] names = {"Tim", "Bill", "Fred", "Max"};
+            // Linq uses a fluent api that makes the statements look more like
+            // a type of dsl. Linq can be used on any enumerable data types and
+            // is often used for talking with data base backends. This is a
+            // small example, however, Linq provides a lot of functionality
+            // which isn't covered in this simple program
+            var query = names
+                .Where(name => name.Length >= 4);
+            foreach (var q in query) {
+                print(q);
+            }
         }
     }
 
