@@ -1,7 +1,7 @@
 
 // A small program to highlight the basics of the kotlin programming language
 
-// This does not cover advanced OOP features, advanced functional features, or
+// This does not cover advanced OOP/functional/async features, or things like
 // scope functions (see: https://kotlinlang.org/docs/scope-functions.html).
 // This is only meant as a quick intro to the basics of the language
 
